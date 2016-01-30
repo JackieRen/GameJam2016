@@ -4,10 +4,7 @@ using GDGeek;
 
 public class Ctrl : MonoBehaviour {
     public View _view = null;
-	public float _playerMoveSpeed = 0;
-    public float _enemyMoveTime = 0;
 
-    private Vector3 velocity_ = Vector2.zero;
     private bool isPlayState = false;
     private bool isHaveFollower = false;
     private FSM fsm_ = new FSM();
@@ -28,10 +25,8 @@ public class Ctrl : MonoBehaviour {
     void FixedUpdate()
     {
         if (isPlayState){ 
-            PlayerMove();
-            EnemyMove();
             if(isHaveFollower){
-                FollowerMove();
+                
             }
         }
     }
@@ -49,6 +44,7 @@ public class Ctrl : MonoBehaviour {
             _view._beginPanel.SetActive(true);
             _view._playPanel.SetActive(false);
             _view._endPanel.SetActive(false);
+            PlayPanelInit();
         };
         state.onOver += delegate{
             _view._beginPanel.SetActive(false);
@@ -70,6 +66,7 @@ public class Ctrl : MonoBehaviour {
         state.onOver += delegate{
             isPlayState = false;
         };
+        state.addEvent("end", "end");
         return state;
     }
     
@@ -77,45 +74,18 @@ public class Ctrl : MonoBehaviour {
     {
         StateWithEventMap state = new StateWithEventMap();
         state.onStart += delegate{
-            
+            _view._endPanel.SetActive(true);
         };
         state.onOver += delegate{
-            
+            _view._endPanel.SetActive(false);
         };
+        state.addEvent("again", "begin");
         return state;
     }
     
-    private void PlayerMove()
+    private void PlayPanelInit()
     {
-        velocity_ = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), 0).normalized * _playerMoveSpeed;
-        _view._player.transform.position = _view._player.transform.position + velocity_ * Time.fixedDeltaTime;
+        
     }
-    
-    private void EnemyMove()
-    {
-        Move(_view._enemy.gameObject, _enemyMoveTime, _view._player.transform.position);
-    }
-    
-    private void FollowerMove()
-    {
-        Vector3 pos = _view._player.transform.position + Vector3.one;
-        Move(_view._follower.gameObject, _enemyMoveTime, pos);
-    }
-    
-    private void Move(GameObject ob, float time, Vector3 position)
-    {
-        TweenLocalPosition comp = Tween.Begin<TweenLocalPosition>(ob, time);
-        comp.from = comp.position;
-        comp.to = position;
-
-        if (_enemyMoveTime <= 0f)
-        {
-            comp.Sample(1f, true);
-            comp.enabled = false;
-        }
-    }
-    
-    
-    
     
 }
