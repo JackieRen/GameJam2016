@@ -2,22 +2,25 @@
 using System.Collections;
 
 public class Player : MonoBehaviour {
+    public Ctrl _ctrl = null;
     public SpriteRenderer _playerImage = null; 
 	public SpriteRenderer _award = null;
-    // public SpriteRenderer[] _awardList = null;
     public Sprite _frontSprite = null;
     public Sprite _backSprite = null;
     public Animator _animator = null;
+    public Animator _treeAnimator = null;
     public float _playerMoveSpeed = 0;
     public bool _isMove = false;
     
     private Vector3 velocity_ = Vector3.zero;
     private Vector3 oldPos_ = Vector3.zero;
-    private string _awardName = "";
+    private string awardName_ = "";
+    private int getAwardNum_ = 0;
     
     void Start () {
 	   _award.gameObject.SetActive(false);
        oldPos_ = this.transform.position;
+       getAwardNum_ = 0;
 	}
     
     void FixedUpdate()
@@ -30,12 +33,20 @@ public class Player : MonoBehaviour {
     void OnCollisionEnter2D(Collision2D enemy)
     {
         if(enemy.gameObject.tag == "Tree"){
-            _award.gameObject.SetActive(false);
+            if(_award.gameObject.activeSelf){
+                _award.gameObject.SetActive(false);
+                _treeAnimator.SetBool("Clear", true);
+                ++getAwardNum_;
+                if(getAwardNum_ == _ctrl._data._awardDataList[_ctrl.nextWaveNum_]){
+                    ++_ctrl.nextWaveNum_;
+                    _ctrl.PlayNext();
+                    getAwardNum_ = 0;
+                }
+            }
         }else if(enemy.gameObject.tag == "Award"){
-            _awardName = enemy.gameObject.name;
             if(!_award.gameObject.activeSelf){
+                awardName_ = enemy.gameObject.GetComponent<SpriteRenderer>().sprite.name;
                 enemy.gameObject.SetActive(false);
-                Debug.Log(enemy.gameObject.name);
                 _award.sprite = enemy.gameObject.GetComponent<SpriteRenderer>().sprite;
                 _award.gameObject.SetActive(true);
             }

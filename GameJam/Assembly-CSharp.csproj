@@ -49,7 +49,6 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Sript\Ctrl\Ctrl.cs" />
-     <Compile Include="Assets\Sript\Ctrl\Logic.cs" />
      <Compile Include="Assets\Sript\GDGeek\FSM\FSM.cs" />
      <Compile Include="Assets\Sript\GDGeek\FSM\FSMEvent.cs" />
      <Compile Include="Assets\Sript\GDGeek\FSM\State.cs" />
@@ -128,6 +127,7 @@
      <Compile Include="Assets\Sript\GDGeek\Web\WebTest.cs" />
      <Compile Include="Assets\Sript\GDGeek\Web\WebTimestamp.cs" />
      <Compile Include="Assets\Sript\GDGeek\WebPlayer\WebPlayer.cs" />
+     <Compile Include="Assets\Sript\Model\GameData.cs" />
      <Compile Include="Assets\Sript\View\Award.cs" />
      <Compile Include="Assets\Sript\View\Enemy.cs" />
      <Compile Include="Assets\Sript\View\Follower.cs" />
