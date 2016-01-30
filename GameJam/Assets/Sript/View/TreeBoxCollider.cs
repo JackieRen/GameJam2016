@@ -1,16 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Award : MonoBehaviour {
+public class TreeBoxCollider : MonoBehaviour {
     
-    public BoxCollider2D _award = null;
-
-	// Use this for initialization
+    public SpriteRenderer _tree = null;
+    public int _sortNum = 0;
+    
 	void Start () {
 	
 	}
 	
-	// Update is called once per frame
 	void Update () {
 	
 	}
@@ -18,9 +17,9 @@ public class Award : MonoBehaviour {
     void OnTriggerEnter2D(Collider2D enemy)
     {
         if(enemy.gameObject.tag == "Player"){
-            _award.isTrigger = false;
+            _tree.sortingOrder = _sortNum;
         }else if(enemy.gameObject.tag == "Enemy"){
-            _award.isTrigger = true;
+            _tree.sortingOrder = _sortNum;
         }
     }
     
