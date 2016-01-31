@@ -4,7 +4,6 @@ using GDGeek;
 
 public class Enemy : MonoBehaviour {
 
-	public Ctrl _ctrl = null;
     public SpriteRenderer _enemyImage = null;
     public Sprite _frontSprite = null;
     public Sprite _backSprite = null;
@@ -13,9 +12,11 @@ public class Enemy : MonoBehaviour {
     public GameObject _backDot = null;
     public GameObject _talkBox = null;
     public Animator _animator = null;
-    public GameObject _player = null;
+    public GameObject _target = null;
     public Follower[] _followerList = null;
+    public Player _player = null;
     public float _enemyMoveTime = 0f;
+    public Vector3 _deviateNum = Vector3.zero;
     public bool _isMove = false;
     
     private Vector3 oldPos_ = Vector3.zero;
@@ -34,7 +35,7 @@ public class Enemy : MonoBehaviour {
         if(_isMove){
             EnemyMove();
             continuedTime_ += 0.1f;
-            lifeNum_ -= 0.05f;
+            lifeNum_ -= 0.02f;
         }
         if(this.gameObject.activeSelf && continuedTime_ > 5){
             _talkBox.SetActive(true);
@@ -49,20 +50,24 @@ public class Enemy : MonoBehaviour {
     void OnCollisionEnter2D(Collision2D enemy)
     {
         if(enemy.gameObject.tag == "Player"){
-            string spriteName = enemy.gameObject.GetComponent<Player>()._award.sprite.name;
-            if(_talkBoxSprite.sprite.name == spriteName){
-                _isMove = false;
-                enemy.gameObject.GetComponent<Player>()._award.gameObject.SetActive(false);
-                this.gameObject.SetActive(false);
-                for(int i = 0; i < _followerList.Length; ++i){
-                    if(!_followerList[i].gameObject.activeSelf){
-                        _followerList[i].transform.position = this.transform.position;
-                        _followerList[i].gameObject.SetActive(true);
-                        _followerList[i]._isMove = true;
-                        break;
+            if(enemy.gameObject.GetComponent<Player>()._award.sprite.name != null){
+                string spriteName = enemy.gameObject.GetComponent<Player>()._award.sprite.name;
+                if(_talkBoxSprite.sprite.name == spriteName){
+                    _isMove = false;
+                    enemy.gameObject.GetComponent<Player>()._award.gameObject.SetActive(false);
+                    this.gameObject.SetActive(false);
+                    for(int i = 0; i < _followerList.Length; ++i){
+                        if(!_followerList[i].gameObject.activeSelf){
+                            _followerList[i].transform.position = this.transform.position;
+                            _followerList[i].gameObject.SetActive(true);
+                            _followerList[i]._isMove = true;
+                            _player._playerMoveSpeed += 1;
+                            break;
+                        }
                     }
                 }
             }
+            
         }
         
     }
@@ -74,7 +79,7 @@ public class Enemy : MonoBehaviour {
     
     private void EnemyMove()
     {
-        Move(this.gameObject, _enemyMoveTime, _player.transform.position);
+        Move(this.gameObject, _enemyMoveTime, _target.transform.position - _deviateNum);
         if(oldPos_.y > this.transform.position.y){
             _enemyImage.sprite = _frontSprite;
             _frontDot.SetActive(true);
@@ -102,16 +107,10 @@ public class Enemy : MonoBehaviour {
     
     private void EnemyDeath()
     {
-        TaskWait tw = new TaskWait(1f);
-        TaskManager.PushFront(tw, delegate {
-            _isMove = false;
-            _animator.SetBool("death", true);
-        });
-        TaskManager.PushBack(tw, delegate {
-            lifeNum_ = 10;
-            this.gameObject.SetActive(false);
-        });
-        TaskManager.Run(tw);
+        _isMove = false;
+        _animator.SetBool("death", true);
+        lifeNum_ = 10;
+        this.gameObject.SetActive(false);
     }
     
 }

@@ -14,7 +14,11 @@ public class Award : MonoBehaviour {
     void OnTriggerEnter2D(Collider2D enemy)
     {
         if(enemy.gameObject.tag == "Player"){
-            _awardBoxCollider.isTrigger = false;
+            if(enemy.gameObject.GetComponent<Player>()._award.gameObject.activeSelf){
+                _awardBoxCollider.isTrigger = true;
+            }else{
+                _awardBoxCollider.isTrigger = false;
+            }
         }else if(enemy.gameObject.tag == "Enemy"){
             _awardBoxCollider.isTrigger = true;
         }

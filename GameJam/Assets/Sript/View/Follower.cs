@@ -4,11 +4,12 @@ using GDGeek;
 
 public class Follower : MonoBehaviour {
 
-    public GameObject _player = null;
+    public GameObject _target = null;
     public Animator _animator = null;
     public SpriteRenderer _enemyImage = null;
     public Sprite _frontSprite = null;
     public Sprite _backSprite = null;
+    public Player _player = null;
 	public float _moveTime = 0;
     public bool _isMove = false;
     
@@ -31,9 +32,16 @@ public class Follower : MonoBehaviour {
        }
 	}
     
+    public void StateOver(){
+        this.gameObject.SetActive(false);
+        continuedTime_ = 0;
+        _animator.SetBool("Death", false);
+        _player._playerMoveSpeed -= 1;
+    }
+    
     private void FollowerMove()
     {
-        Vector3 pos = _player.transform.position - new Vector3(0.5f, 0.5f, 0);
+        Vector3 pos = _target.transform.position - new Vector3(0.8f, 0.8f, 0);
         Move(this.gameObject, _moveTime, pos);
         if(oldPos_.y > this.transform.position.y){
             _enemyImage.sprite = _frontSprite;
@@ -58,18 +66,8 @@ public class Follower : MonoBehaviour {
     
     private void FollowerDeath()
     {
-        TaskWait wait = new TaskWait ();
-        wait.setAllTime (1);
-        TaskManager.PushFront(wait, delegate {
-            _isMove = false;
-            _animator.SetBool("Death", true);
-        });
-        TaskManager.PushBack(wait, delegate {
-            this.gameObject.SetActive(false);
-            continuedTime_ = 0;
-            _animator.SetBool("Death", false);
-        });
-        TaskManager.Run(wait);
+        _isMove = false;
+        _animator.SetBool("Death", true);
     }
     
 }

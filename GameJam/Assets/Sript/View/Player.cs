@@ -9,6 +9,7 @@ public class Player : MonoBehaviour {
     public Sprite _backSprite = null;
     public Animator _animator = null;
     public Animator _treeAnimator = null;
+    public Tree[] _treeList = null;
     public float _playerMoveSpeed = 0;
     public bool _isMove = false;
     
@@ -36,6 +37,12 @@ public class Player : MonoBehaviour {
             if(_award.gameObject.activeSelf){
                 _award.gameObject.SetActive(false);
                 _treeAnimator.SetBool("Clear", true);
+                for(int i = 0; i < _treeList.Length; ++i){
+                    if(_treeList[i].gameObject.activeSelf){
+                        _treeList[i]._treeLifeNum += 10;
+                        break;
+                    }
+                }
                 ++getAwardNum_;
                 if(getAwardNum_ == _ctrl._data._awardDataList[_ctrl.nextWaveNum_]){
                     ++_ctrl.nextWaveNum_;

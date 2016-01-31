@@ -5,10 +5,11 @@ using GDGeek;
 public class Ctrl : MonoBehaviour {
     public View _view = null;
     public GameData _data = null;
+    public Tree[] _treeList = null;
+    public Animator _beginAnimator = null;
+    public Animator _black = null;
     public int nextWaveNum_ = 0;
 
-    private bool isPlayState = false;
-    private bool isHaveFollower = false;
     private FSM fsm_ = new FSM();
 
     void Start()
@@ -46,8 +47,11 @@ public class Ctrl : MonoBehaviour {
             _view._beginPanel.SetActive(true);
             _view._playPanel.SetActive(false);
             _view._endPanel.SetActive(false);
+            _beginAnimator.SetBool("Go", true);
         };
         state.onOver += delegate{
+            Debug.Log("aasdasdasdas");
+            _black.SetBool("On", true);
             _view._beginPanel.SetActive(false);
             _view._playPanel.SetActive(true);
         };
@@ -63,10 +67,10 @@ public class Ctrl : MonoBehaviour {
         StateWithEventMap state = new StateWithEventMap();
         state.onStart += delegate{
             PlayPanelInit();
-            isPlayState = true;
+            _black.SetBool("Go", false);
         };
         state.onOver += delegate{
-            isPlayState = false;
+            
         };
         state.addEvent("end", "end");
         return state;
@@ -94,6 +98,7 @@ public class Ctrl : MonoBehaviour {
         _view._player.transform.position = Vector3.zero;
         for(int i = 0; i < _data._enemyList.Length; ++i){
             _data._enemyList[i].gameObject.SetActive(false);
+            _data._followerList[i].gameObject.SetActive(false);
             _data._awardList[i].transform.parent.gameObject.SetActive(false);
         }
         int awardNo = Random.Range(0, 4);
@@ -101,6 +106,11 @@ public class Ctrl : MonoBehaviour {
         _data._awardList[awardNo]._image.sprite = _data._awardSpriteList[spriteNo];
         _data._awardList[awardNo]._awardSprite.sprite = _data._awardSpriteList[spriteNo];
         _data._awardList[awardNo].transform.parent.gameObject.SetActive(true);
+        for(int i = 0; i < _treeList.Length; ++i){
+            _treeList[i]._treeLifeNum = 20;
+            _treeList[i].gameObject.SetActive(false);
+        }
+        _treeList[0].gameObject.SetActive(true);
     }
     
     public void PlayNext()

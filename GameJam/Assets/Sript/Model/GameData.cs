@@ -11,6 +11,7 @@ public class GameData : MonoBehaviour {
     public string[] _showEnemyPos = null;
     public Award[] _awardList = null;
     public Enemy[] _enemyList = null;
+    public Follower[] _followerList = null;
     public Sprite[] _awardSpriteList = null;
     
 }
