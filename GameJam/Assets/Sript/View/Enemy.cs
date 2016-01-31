@@ -3,7 +3,7 @@ using System.Collections;
 using GDGeek;
 
 public class Enemy : MonoBehaviour {
-
+    public Ctrl _ctrl = null;
     public SpriteRenderer _enemyImage = null;
     public Sprite _frontSprite = null;
     public Sprite _backSprite = null;
@@ -14,6 +14,7 @@ public class Enemy : MonoBehaviour {
     public Animator _animator = null;
     public GameObject _target = null;
     public Follower[] _followerList = null;
+    public GameObject[] _roockList = null;
     public Player _player = null;
     public float _enemyMoveTime = 0f;
     public Vector3 _deviateNum = Vector3.zero;
@@ -55,7 +56,12 @@ public class Enemy : MonoBehaviour {
                 if(_talkBoxSprite.sprite.name == spriteName){
                     _isMove = false;
                     enemy.gameObject.GetComponent<Player>()._award.gameObject.SetActive(false);
-                    this.gameObject.SetActive(false);
+                    enemy.gameObject.GetComponent<Player>()._getAwardNum += 1;
+                    if(enemy.gameObject.GetComponent<Player>()._getAwardNum == _ctrl._data._awardDataList[_ctrl.nextWaveNum_]){
+                        ++_ctrl.nextWaveNum_;
+                        _ctrl.PlayNext();
+                        enemy.gameObject.GetComponent<Player>()._getAwardNum = 0;
+                    }
                     for(int i = 0; i < _followerList.Length; ++i){
                         if(!_followerList[i].gameObject.activeSelf){
                             _followerList[i].transform.position = this.transform.position;
@@ -65,6 +71,7 @@ public class Enemy : MonoBehaviour {
                             break;
                         }
                     }
+                    this.gameObject.SetActive(false);
                 }
             }
             
@@ -107,10 +114,24 @@ public class Enemy : MonoBehaviour {
     
     private void EnemyDeath()
     {
-        _isMove = false;
-        _animator.SetBool("death", true);
-        lifeNum_ = 10;
-        this.gameObject.SetActive(false);
+        TaskWait tw = new TaskWait(1f);
+        TaskManager.PushFront(tw, delegate(){
+            _isMove = false;
+            _animator.SetBool("Death", true);
+        });
+        TaskManager.PushBack(tw, delegate(){
+            lifeNum_ = 10;
+            for(int i = 0; i < _roockList.Length; ++i){
+                if(!_roockList[i].activeSelf){
+                    _roockList[i].transform.position = this.transform.position;
+                    _roockList[i].SetActive(true);
+                    break;
+                }
+            }
+            this.gameObject.SetActive(false);
+            _animator.SetBool("Death", false);
+        });
+        TaskManager.Run(tw);
     }
     
 }

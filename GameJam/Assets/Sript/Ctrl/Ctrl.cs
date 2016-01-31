@@ -7,6 +7,7 @@ public class Ctrl : MonoBehaviour {
     public GameData _data = null;
     public Tree[] _treeList = null;
     public Animator _beginAnimator = null;
+    public Animator _endAnimator = null;
     public Animator _black = null;
     public int nextWaveNum_ = 0;
 
@@ -14,20 +15,11 @@ public class Ctrl : MonoBehaviour {
 
     void Start()
     {
-        fsm_.addState("begin", beginState());
-        fsm_.addState("play", playState());
-        fsm_.addState("end", endState());
+        fsm_.addState("begin", BeginState());
+        fsm_.addState("play", PlayState());
+        fsm_.addState("end", EndState());
+        fsm_.addState("again", AgainState());
         fsm_.init("begin");
-    }
-
-    void Update () 
-    {
-        
-    }
-
-    void FixedUpdate()
-    {
-        
     }
     
     public void fsmPost(string msg)
@@ -40,7 +32,7 @@ public class Ctrl : MonoBehaviour {
         
     }
     
-    private State beginState()
+    private State BeginState()
     {
         StateWithEventMap state = new StateWithEventMap();
         state.onStart += delegate{
@@ -50,24 +42,32 @@ public class Ctrl : MonoBehaviour {
             _beginAnimator.SetBool("Go", true);
         };
         state.onOver += delegate{
-            Debug.Log("aasdasdasdas");
-            _black.SetBool("On", true);
-            _view._beginPanel.SetActive(false);
-            _view._playPanel.SetActive(true);
+            TaskWait tw = new TaskWait(2f);
+            TaskManager.PushFront(tw, delegate(){
+                _black.SetBool("On", true);
+            });
+            TaskManager.PushBack(tw, delegate(){
+                _view._beginPanel.SetActive(false);
+                _view._playPanel.SetActive(true);
+            });
+            TaskManager.Run(tw);
         };
         state.addEvent("begin", "play");
         return state;
     }
     
-    private State playState()
+    private State PlayState()
     {
-        // StateWithEventMap state = TaskState.Create(delegate{
-        //     return new Task();
-        // }, fsm_, "end");
         StateWithEventMap state = new StateWithEventMap();
         state.onStart += delegate{
-            PlayPanelInit();
-            _black.SetBool("Go", false);
+            TaskWait tw = new TaskWait(2f);
+            TaskManager.PushFront(tw, delegate(){
+                PlayPanelInit();
+            });
+            TaskManager.PushBack(tw, delegate(){
+                _black.SetBool("On", false);
+            });
+            TaskManager.Run(tw);
         };
         state.onOver += delegate{
             
@@ -76,19 +76,58 @@ public class Ctrl : MonoBehaviour {
         return state;
     }
     
-    private State endState()
+    private State EndState()
     {
         StateWithEventMap state = new StateWithEventMap();
         state.onStart += delegate{
-            _view._endPanel.SetActive(true);
-            for(int i = 0; i < _data._enemyList.Length; ++i){
-                _data._enemyList[i]._isMove = false;
-            }
+            TaskWait tw = new TaskWait(2f);
+            TaskManager.PushBack(tw, delegate(){
+                _view._endPanel.SetActive(true);
+                for(int i = 0; i < _data._enemyList.Length; ++i){
+                    _data._enemyList[i]._isMove = false;
+                    _data._followerList[i]._isMove = false;
+                }
+                _endAnimator.SetBool("Play", true);
+            });
+            TaskManager.Run(tw);
         };
         state.onOver += delegate{
-            _view._endPanel.SetActive(false);
+            TaskWait tw = new TaskWait(1f);
+            TaskManager.PushFront(tw, delegate(){
+                _endAnimator.GetComponent<CanvasGroup>().alpha = 0;
+                _endAnimator.SetBool("Play", false);
+            });
+            TaskManager.PushBack(tw, delegate(){
+                _view._endPanel.SetActive(false);
+                _endAnimator.GetComponent<CanvasGroup>().alpha = 1;
+            });
+            TaskManager.Run(tw);
         };
-        state.addEvent("again", "begin");
+        state.addEvent("again", "again");
+        return state;
+    }
+    
+    private State AgainState()
+    {
+        StateWithEventMap state = new StateWithEventMap();
+        state.onStart += delegate{
+            _view._beginPanel.SetActive(true);
+            _view._playPanel.SetActive(false);
+            _view._endPanel.SetActive(false);
+            _beginAnimator.SetBool("Again", true);
+        };
+        state.onOver += delegate{
+            TaskWait tw = new TaskWait(2f);
+            TaskManager.PushFront(tw, delegate(){
+                _black.SetBool("On", true);
+            });
+            TaskManager.PushBack(tw, delegate(){
+                _view._beginPanel.SetActive(false);
+                _view._playPanel.SetActive(true);
+            });
+            TaskManager.Run(tw);
+        };
+        state.addEvent("begin", "play");
         return state;
     }
     
@@ -100,6 +139,7 @@ public class Ctrl : MonoBehaviour {
             _data._enemyList[i].gameObject.SetActive(false);
             _data._followerList[i].gameObject.SetActive(false);
             _data._awardList[i].transform.parent.gameObject.SetActive(false);
+            _data._rockList[i].SetActive(false);
         }
         int awardNo = Random.Range(0, 4);
         int spriteNo = Random.Range(0, 9);
@@ -109,6 +149,7 @@ public class Ctrl : MonoBehaviour {
         for(int i = 0; i < _treeList.Length; ++i){
             _treeList[i]._treeLifeNum = 20;
             _treeList[i].gameObject.SetActive(false);
+            _treeList[i]._deathTree.gameObject.SetActive(false);
         }
         _treeList[0].gameObject.SetActive(true);
     }
@@ -138,24 +179,5 @@ public class Ctrl : MonoBehaviour {
         }
     }
     
-    private int[] GetRandomList(int length, int minNum, int maxNum)
-    {
-        int[] numList = new int[length];
-        for(int i = 0; i < length; ++i){
-            int randomNumber = Random.Range(minNum, maxNum + 1);
-            int num=0;
-            for(int j = 0; j < i; ++j) {
-                if (numList[j] == randomNumber){
-                    num = num + 1;
-                }
-            }
-            if(num == 0){
-                numList[i] = randomNumber;
-            }else{
-                i = i - 1;  
-            } 
-        }
-        return numList;
-    }
     
 }

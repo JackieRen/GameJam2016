@@ -12,16 +12,16 @@ public class Player : MonoBehaviour {
     public Tree[] _treeList = null;
     public float _playerMoveSpeed = 0;
     public bool _isMove = false;
+    public int _getAwardNum = 0;
     
     private Vector3 velocity_ = Vector3.zero;
     private Vector3 oldPos_ = Vector3.zero;
     private string awardName_ = "";
-    private int getAwardNum_ = 0;
     
     void Start () {
 	   _award.gameObject.SetActive(false);
        oldPos_ = this.transform.position;
-       getAwardNum_ = 0;
+       _getAwardNum = 0;
 	}
     
     void FixedUpdate()
@@ -43,11 +43,11 @@ public class Player : MonoBehaviour {
                         break;
                     }
                 }
-                ++getAwardNum_;
-                if(getAwardNum_ == _ctrl._data._awardDataList[_ctrl.nextWaveNum_]){
+                ++_getAwardNum;
+                if(_getAwardNum == _ctrl._data._awardDataList[_ctrl.nextWaveNum_]){
                     ++_ctrl.nextWaveNum_;
                     _ctrl.PlayNext();
-                    getAwardNum_ = 0;
+                    _getAwardNum = 0;
                 }
             }
         }else if(enemy.gameObject.tag == "Award"){

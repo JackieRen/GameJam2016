@@ -25,7 +25,7 @@ public class Follower : MonoBehaviour {
     {
 	   if(_isMove){
            FollowerMove();
-           continuedTime_ += 0.01f;
+           continuedTime_ += 0.02f;
            if(continuedTime_ >= 10){
                FollowerDeath();
            }
