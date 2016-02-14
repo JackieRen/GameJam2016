@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using GDGeek;
 
 public class Ctrl : MonoBehaviour {
@@ -9,9 +10,12 @@ public class Ctrl : MonoBehaviour {
     public Animator _beginAnimator = null;
     public Animator _endAnimator = null;
     public Animator _black = null;
-    public int nextWaveNum_ = 0;
 
     private FSM fsm_ = new FSM();
+    private List<GameObject> awardList_ = new List<GameObject>();
+    private List<GameObject> enemyList_ = new List<GameObject>();
+    private List<GameObject> followerList_ = new List<GameObject>();
+    private List<GameObject> rockList_ = new List<GameObject>();
 
     void Start()
     {
@@ -80,13 +84,24 @@ public class Ctrl : MonoBehaviour {
     {
         StateWithEventMap state = new StateWithEventMap();
         state.onStart += delegate{
-            TaskWait tw = new TaskWait(2f);
+            TaskWait tw = new TaskWait(1.5f);
             TaskManager.PushBack(tw, delegate(){
                 _view._endPanel.SetActive(true);
-                for(int i = 0; i < _data._enemyList.Length; ++i){
-                    _data._enemyList[i]._isMove = false;
-                    _data._followerList[i]._isMove = false;
+                for(int i = 0; i < awardList_.Count; ++i){
+                    DestroyImmediate(awardList_[i]);
                 }
+                for(int i = 0; i < enemyList_.Count; ++i){
+                    DestroyImmediate(enemyList_[i]);
+                }
+                for(int i = 0; i < followerList_.Count; ++i){
+                    DestroyImmediate(followerList_[i]);
+                }
+                for(int i = 0; i < rockList_.Count; ++i){
+                    DestroyImmediate(rockList_[i]);
+                }
+                enemyList_.Clear();
+                followerList_.Clear();
+                rockList_.Clear();
                 _endAnimator.SetBool("Play", true);
             });
             TaskManager.Run(tw);
@@ -133,19 +148,18 @@ public class Ctrl : MonoBehaviour {
     
     private void PlayPanelInit()
     {
-        nextWaveNum_ = 0;
-        _view._player.transform.position = Vector3.zero;
-        for(int i = 0; i < _data._enemyList.Length; ++i){
-            _data._enemyList[i].gameObject.SetActive(false);
-            _data._followerList[i].gameObject.SetActive(false);
-            _data._awardList[i].transform.parent.gameObject.SetActive(false);
-            _data._rockList[i].SetActive(false);
-        }
-        int awardNo = Random.Range(0, 4);
-        int spriteNo = Random.Range(0, 9);
-        _data._awardList[awardNo]._image.sprite = _data._awardSpriteList[spriteNo];
-        _data._awardList[awardNo]._awardSprite.sprite = _data._awardSpriteList[spriteNo];
-        _data._awardList[awardNo].transform.parent.gameObject.SetActive(true);
+        _data._enemyDeathNum = 0;
+        _data._nextWaveNum = 0;
+        _view._player.transform.position = new Vector3(0, -3, 0);
+        int awardSpriteNo = _data._waveData[0]._awardSpriteNo[0];
+        int awardPosNO = _data._waveData[0]._awardPosNo[0];
+        Vector3 awardPos = _data._showAwardPos[awardPosNO];
+        GameObject go = Instantiate(_view._award);
+        go.transform.position = awardPos;
+        go.transform.localScale = _view._award.transform.localScale;
+        go.transform.parent = _view._award.transform.parent;
+        go.GetComponent<Award>()._image.sprite = _data._awardSpriteList[awardSpriteNo];
+        go.SetActive(true);
         for(int i = 0; i < _treeList.Length; ++i){
             _treeList[i]._treeLifeNum = 20;
             _treeList[i].gameObject.SetActive(false);
@@ -156,26 +170,31 @@ public class Ctrl : MonoBehaviour {
     
     public void PlayNext()
     {
-        char[] awardList = _data._showAwardPos[nextWaveNum_].ToCharArray();
-        char[] awardSpriteList = _data._showAwardSprite[nextWaveNum_].ToCharArray();
-        char[] enemyList = _data._showEnemyPos[nextWaveNum_].ToCharArray();
-        for(int i = 0; i < awardSpriteList.Length; ++i){
-            int num1 = int.Parse(awardList[i].ToString());
-            int num2 = int.Parse(awardSpriteList[i].ToString());
-            if(num1 != 0 && num2 != 0){
-                _data._awardList[num1 - 1]._image.sprite = _data._awardSpriteList[num2 - 1];
-                _data._awardList[num1 - 1]._awardSprite.sprite = _data._awardSpriteList[num2 - 1];
-                _data._awardList[num1 - 1].transform.parent.gameObject.SetActive(true);
-            }
+        awardList_.Clear();
+        enemyList_.Clear();
+        int awardNum = _data._waveData[_data._nextWaveNum]._awardSpriteNo.Length;
+        int enemyNum = _data._waveData[_data._nextWaveNum]._enemyPosNum.Length;
+        for(int i = 0; i < awardNum; ++i){
+            int awardSpriteNo = _data._waveData[_data._nextWaveNum]._awardSpriteNo[i];
+            int awardPosNo = _data._waveData[_data._nextWaveNum]._awardPosNo[i];
+            Vector3 awardPos = _data._showAwardPos[awardPosNo - 1];
+            GameObject go = Instantiate(_view._award);
+            go.transform.position = awardPos;
+            go.transform.localScale = _view._award.transform.localScale;
+            go.transform.parent = _view._award.transform.parent;
+            go.GetComponent<Award>()._image.sprite = _data._awardSpriteList[awardSpriteNo - 1];
+            go.SetActive(true);
+            awardList_.Add(go);
         }
-        for(int i = 0; i < enemyList.Length; ++i){
-            int num1 = int.Parse(enemyList[i].ToString());
-            int num2 = int.Parse(awardSpriteList[i].ToString());
-            if(num1 != 0 && num2 != 0){
-                _data._enemyList[num1 - 1]._talkBoxSprite.sprite = _data._awardSpriteList[num2 - 1];
-                _data._enemyList[num1 - 1].gameObject.SetActive(true);
-                _data._enemyList[num1 - 1]._isMove = true;
-            }
+        for(int i = 0; i < enemyNum; ++i){
+            int awardPosNO = _data._waveData[_data._nextWaveNum]._awardPosNo[i];
+            Vector3 enemyPos = _data._showAwardPos[awardPosNO - 1];
+            GameObject go = Instantiate(_view._enemy);
+            go.transform.position = enemyPos;
+            go.transform.localScale = _view._enemy.transform.localScale;
+            go.transform.parent = _view._enemy.transform.parent;
+            go.SetActive(true);
+            enemyList_.Add(go);
         }
     }
     

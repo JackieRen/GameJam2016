@@ -36,7 +36,7 @@ public class Follower : MonoBehaviour {
         this.gameObject.SetActive(false);
         continuedTime_ = 0;
         _animator.SetBool("Death", false);
-        _player._playerMoveSpeed -= 1;
+        // _player._playerMoveSpeed -= 1;
     }
     
     private void FollowerMove()

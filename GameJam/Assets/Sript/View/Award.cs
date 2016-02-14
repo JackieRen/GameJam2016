@@ -2,13 +2,13 @@
 using System.Collections;
 
 public class Award : MonoBehaviour {
-    public SpriteRenderer _awardSprite = null;
+    // public SpriteRenderer _awardSprite = null;
     public SpriteRenderer _image = null;
     public CircleCollider2D _awardBoxCollider = null;
     
     void Start()
     {
-        _awardSprite.sprite = _image.sprite;
+        // _awardSprite.sprite = _image.sprite;
     }
     
     void OnTriggerEnter2D(Collider2D enemy)

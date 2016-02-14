@@ -56,18 +56,18 @@ public class Enemy : MonoBehaviour {
                 if(_talkBoxSprite.sprite.name == spriteName){
                     _isMove = false;
                     enemy.gameObject.GetComponent<Player>()._award.gameObject.SetActive(false);
-                    enemy.gameObject.GetComponent<Player>()._getAwardNum += 1;
-                    if(enemy.gameObject.GetComponent<Player>()._getAwardNum == _ctrl._data._awardDataList[_ctrl.nextWaveNum_]){
-                        ++_ctrl.nextWaveNum_;
+                    _ctrl._data._enemyDeathNum += 1;
+                    if(_ctrl._data._enemyDeathNum == _ctrl._data._nextWaveNum + 1){
+                        ++_ctrl._data._nextWaveNum;
                         _ctrl.PlayNext();
-                        enemy.gameObject.GetComponent<Player>()._getAwardNum = 0;
+                        _ctrl._data._enemyDeathNum = 0;
                     }
                     for(int i = 0; i < _followerList.Length; ++i){
                         if(!_followerList[i].gameObject.activeSelf){
                             _followerList[i].transform.position = this.transform.position;
                             _followerList[i].gameObject.SetActive(true);
                             _followerList[i]._isMove = true;
-                            _player._playerMoveSpeed += 1;
+                            // _player._playerMoveSpeed += 1;
                             break;
                         }
                     }
