@@ -46,18 +46,18 @@ public class Player : MonoBehaviour {
                         break;
                     }
                 }
-                _ctrl._data._enemyDeathNum += 1;
-                if(_ctrl._data._enemyDeathNum == _ctrl._data._nextWaveNum){
+                _ctrl._data._getAwardNum += 1;
+                if(_ctrl._data._getAwardNum == _ctrl._data._nextWaveNum){
                     _ctrl._data._nextWaveNum += 1;
                     _ctrl.PlayNext();
-                    _ctrl._data._enemyDeathNum = 0;
+                    _ctrl._data._getAwardNum = 0;
                 }
             }
         }else if(enemy.gameObject.tag == "Award"){
             if(!_award.gameObject.activeSelf){
-                awardName_ = enemy.gameObject.GetComponent<SpriteRenderer>().sprite.name;
-                enemy.gameObject.SetActive(false);
-                _award.sprite = enemy.gameObject.GetComponent<SpriteRenderer>().sprite;
+                awardName_ = enemy.gameObject.GetComponent<Award>()._image.sprite.name;
+                enemy.transform.parent.gameObject.SetActive(false);
+                _award.sprite = enemy.gameObject.GetComponent<Award>()._image.sprite;
                 _award.gameObject.SetActive(true);
             }
         }

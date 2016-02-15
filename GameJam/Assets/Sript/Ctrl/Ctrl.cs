@@ -148,17 +148,17 @@ public class Ctrl : MonoBehaviour {
     
     private void PlayPanelInit()
     {
-        _data._enemyDeathNum = 0;
-        _data._nextWaveNum = 0;
+        _data._getAwardNum = 0;
+        _data._nextWaveNum = 1;
         _view._player.transform.position = new Vector3(0, -3, 0);
         int awardSpriteNo = _data._waveData[0]._awardSpriteNo[0];
-        int awardPosNO = _data._waveData[0]._awardPosNo[0];
-        Vector3 awardPos = _data._showAwardPos[awardPosNO];
+        int awardPosNo = _data._waveData[0]._awardPosNo[0];
+        Vector3 awardPos = _data._showAwardPos[awardPosNo - 1];
         GameObject go = Instantiate(_view._award);
         go.transform.position = awardPos;
         go.transform.localScale = _view._award.transform.localScale;
         go.transform.parent = _view._award.transform.parent;
-        go.GetComponent<Award>()._image.sprite = _data._awardSpriteList[awardSpriteNo];
+        go.GetComponent<Award>()._image.sprite = _data._awardSpriteList[awardSpriteNo - 1];
         go.SetActive(true);
         for(int i = 0; i < _treeList.Length; ++i){
             _treeList[i]._treeLifeNum = 20;
