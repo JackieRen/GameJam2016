@@ -11,7 +11,7 @@ public class Tree : MonoBehaviour {
     
     void FixedUpdate()
     {
-        // _treeLifeNum -= 0.02f;
+        _treeLifeNum -= 0.02f;
         if(_treeLifeNum <= 0){
             DeathTree();
         }else if(_treeLifeNum >= 50 && _nextTree != null){

@@ -195,6 +195,7 @@ public class Ctrl : MonoBehaviour {
             go.transform.parent = _view._enemy.transform.parent;
             go.SetActive(true);
             enemyList_.Add(go);
+            go.GetComponent<Enemy>()._isMove = true;
         }
     }
     
